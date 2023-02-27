@@ -1,4 +1,3 @@
-# ICECCME 2022 - Maldives
 import os
 
 import numpy as np
@@ -7,19 +6,15 @@ import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
 
-from pyrepo_mcda.mcda_methods import TOPSIS, ARAS, EDAS, CODAS, PROMETHEE_II
+from pyrepo_mcda.mcda_methods import TOPSIS, ARAS, CODAS, PROMETHEE_II
 from pyrepo_mcda import distance_metrics as dists
 from pyrepo_mcda import weighting_methods as mcda_weights
 from pyrepo_mcda import normalizations as norms
 from pyrepo_mcda import correlations as corrs
 from pyrepo_mcda.additions import rank_preferences
 
-# from pymcdm import weights as mcdm_weights
-# from pymcdm import methods as mcdm_methods
 
-
-
-# bar chart
+# plot bar chart
 def plot_barplot(df_plot, x_name, y_name, title, sth = ''):
     """
     Display stacked column chart of weights for criteria for `x_name == Weighting methods`
@@ -142,12 +137,8 @@ def main():
     matrix = df.to_numpy()
 
     # CRITIC weighting
-    # bo pozadana normalizacja min-max a my mamy negative values w decision matrix
     # weights
     weights = mcda_weights.critic_weighting(matrix)
-
-    # print(weights)
-    # print(np.sum(weights))
 
     preferences = pd.DataFrame(index = symbols)
     rankings = pd.DataFrame(index = symbols)
@@ -166,13 +157,6 @@ def main():
     preferences['ARAS'] = pref
     rankings['ARAS'] = rank
 
-    # # EDAS
-    # edas = EDAS()
-    # pref = edas(matrix, weights, types)
-    # rank = rank_preferences(pref, reverse=True)
-    # preferences['EDAS'] = pref
-    # rankings['EDAS'] = rank
-
     # CODAS
     codas = CODAS(normalization_method=norms.minmax_normalization, distance_metric=dists.euclidean)
     pref = codas(matrix, weights, types)
@@ -187,7 +171,7 @@ def main():
     # bar chart MCDA
     plot_barplot(rankings, 'Countries', 'Rank', 'MCDA methods', 'mcda')
 
-    # korelacje
+    # Correlations
     method_types = list(rankings.columns)
     dict_new_heatmap_rw = Create_dictionary()
     for el in method_types:
@@ -204,7 +188,7 @@ def main():
     draw_heatmap(df_new_heatmap_rw, r'$r_w$')
 
     # ==============================================================================
-    # walidacja z PROMETHEE II
+    # Validation using PROMETHEE II method
 
     rankings_prom = pd.DataFrame(index = symbols)
 
@@ -234,7 +218,7 @@ def main():
     # save rankings in csv
     rankings_prom.to_csv('./results/rankings_prom.csv')
 
-    # korelacje
+    # Correlations
     method_types = list(rankings_prom.columns)
     dict_new_heatmap_rw = Create_dictionary()
     for el in method_types:
@@ -262,28 +246,6 @@ def main():
 
     # correlation matrix with rw coefficient
     draw_heatmap(df_valid, r'$r_w$', 'validation')
-
-
-    # # prom II test
-    # print('-----')
-    # print('PROM')
-    # print(rankings_prom)
-
-
-    # rankings_prom = pd.DataFrame(index = symbols)
-    # u = np.sqrt(np.sum(np.square(np.mean(matrix, axis = 0) - matrix), axis = 0) / matrix.shape[0])
-    # p = 2 * u
-    # q = 0.5 * u
-
-    # preference_functions = ['usual', 'ushape', 'vshape', 'level', 'vshape_2']
-    # for pf in preference_functions:
-
-    #     function = mcdm_methods.PROMETHEE_II(preference_function = pf)
-    #     result = function(matrix, weights, types, p=p, q=q)
-    #     rankings_prom[pf] = rank_preferences(result, reverse = True)
-
-    # print('-----')
-    # print(rankings_prom)
 
     
 
